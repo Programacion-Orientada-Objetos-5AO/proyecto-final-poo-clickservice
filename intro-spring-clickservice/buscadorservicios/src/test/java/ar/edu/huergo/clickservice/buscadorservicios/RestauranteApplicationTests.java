@@ -1,4 +1,4 @@
-package ar.edu.huergo.lcarera.restaurante;
+package ar.edu.huergo.clickservice.buscadorservicios;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

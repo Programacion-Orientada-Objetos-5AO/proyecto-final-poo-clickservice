@@ -1,4 +1,4 @@
-package ar.edu.huergo.lcarera.restaurante.security;
+package ar.edu.huergo.clickservice.buscadorservicios.security;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -20,7 +20,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import ar.edu.huergo.lcarera.restaurante.service.security.JwtTokenService;
+import ar.edu.huergo.clickservice.buscadorservicios.service.security.JwtTokenService;
 
 /**
  * Tests de seguridad para JwtTokenService

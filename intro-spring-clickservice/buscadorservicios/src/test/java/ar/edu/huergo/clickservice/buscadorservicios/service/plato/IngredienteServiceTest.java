@@ -1,4 +1,4 @@
-package ar.edu.huergo.lcarera.restaurante.service.plato;
+package ar.edu.huergo.clickservice.buscadorservicios.service.plato;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,8 +20,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ar.edu.huergo.lcarera.restaurante.entity.plato.Ingrediente;
-import ar.edu.huergo.lcarera.restaurante.repository.plato.IngredienteRepository;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.plato.Ingrediente;
+import ar.edu.huergo.clickservice.buscadorservicios.repository.plato.IngredienteRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 @ExtendWith(MockitoExtension.class)

@@ -1,4 +1,4 @@
-package ar.edu.huergo.lcarera.restaurante.entity.plato;
+package ar.edu.huergo.clickservice.buscadorservicios.entity.plato;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

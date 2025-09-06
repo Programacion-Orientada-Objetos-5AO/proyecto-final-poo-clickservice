@@ -1,1 +1,62 @@
 package ar.edu.huergo.clickservice.buscadorservicios.mapper;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
+import ar.edu.huergo.clickservice.buscadorservicios.dto.ServicioDTO;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.Servicio;
+
+// Un Mapper es una clase que se encarga de convertir un objeto de un tipo a otro.
+// En este caso, se encarga de convertir un objeto Servicio a un objeto ServicioDTO y viceversa.
+// Esto es útil para evitar que el controlador se encargue de la conversión de objetos.
+@Component
+public class ServicioMapper {
+
+    /**
+     * Convierte una entidad Servicio a ServicioDTO
+     */
+    public ServicioDTO toDTO(Servicio servicio) {
+        if (servicio == null) {
+            return null;
+        }
+        return new ServicioDTO(servicio.getId(), servicio.getNombre(), servicio.getPrecioHora()) {
+        };
+    }
+
+    /**
+     * Convierte un ServicioDTO a entidad Servicio
+     */
+    public Servicio toEntity(ServicioDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+        Servicio servicio = new Servicio();
+        servicio.setId(dto.getId());
+        servicio.setNombre(dto.getNombre());
+        servicio.setPrecioHora(dto.getPrecioHora());
+        return servicio;
+    }
+
+    /**
+     * Convierte una lista de entidades Servicio a lista de ServicioDTO
+     */
+    public List<ServicioDTO> toDTOList(List<Servicio> servicios) {
+        if (servicios == null) {
+            return new ArrayList<>();
+        }
+        return servicios.stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    /**
+     * Convierte una lista de ServicioDTO a lista de entidades Servicio
+     */
+    public List<Servicio> toEntityList(List<ServicioDTO> serviciosDTO) {
+        if (serviciosDTO == null) {
+            return new ArrayList<>();
+        }
+        return serviciosDTO.stream().map(this::toEntity).collect(Collectors.toList());
+    }
+}

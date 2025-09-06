@@ -1,4 +1,4 @@
-package ar.edu.huergo.lcarera.restaurante.repository.plato;
+package ar.edu.huergo.clickservice.buscadorservicios.repository.plato;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import ar.edu.huergo.lcarera.restaurante.entity.plato.Ingrediente;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.plato.Ingrediente;
 
 @DataJpaTest
 @DisplayName("Tests de Integración - IngredienteRepository")
