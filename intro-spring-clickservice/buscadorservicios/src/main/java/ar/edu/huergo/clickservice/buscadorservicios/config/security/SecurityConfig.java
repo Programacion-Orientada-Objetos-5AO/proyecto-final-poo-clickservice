@@ -30,30 +30,49 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http,
             JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
-        // Configuración central de Spring Security con JWT:
-        // - Deshabilitamos CSRF porque no usamos cookies/sesiones en un API stateless.
-        // - Forzamos manejo de sesión sin estado (los datos de auth vienen en el JWT).
-        // - Permitimos libre acceso solo al login, el resto requiere autenticación y roles.
-        // - Registramos nuestro filtro JWT antes del filtro de usuario/contraseña.
+        
         http.csrf(csrf -> csrf.disable())
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Rutas públicas - no requieren autenticación
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/usuarios/registrar").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/servicios").hasRole("CLIENTE")
+                        
+                        // Rutas de servicios - configuración por método HTTP y rol
+                        .requestMatchers(HttpMethod.GET, "/api/servicios").hasAnyRole("ADMIN", "CLIENTE")
+                        .requestMatchers(HttpMethod.GET, "/api/servicios/**").hasAnyRole("ADMIN", "CLIENTE")
+                        .requestMatchers(HttpMethod.POST, "/api/servicios").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/servicios/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/servicios/**").hasRole("ADMIN")
+                        
+                        // Rutas de usuarios - solo ADMIN puede ver todos los usuarios
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios").hasRole("ADMIN")
+                        
+                        // Rutas de pedidos - reporte solo para ADMIN
                         .requestMatchers(HttpMethod.GET, "/api/pedidos/reporte").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/platos/**")
-                        .hasAnyRole("ADMIN", "CLIENTE").requestMatchers("/api/ingredientes/**")
-                        .hasRole("ADMIN").requestMatchers(HttpMethod.POST, "/api/platos/**")
-                        .hasRole("ADMIN").requestMatchers(HttpMethod.PUT, "/api/platos/**")
-                        .hasRole("ADMIN").requestMatchers(HttpMethod.DELETE, "/api/platos/**")
-                        .hasRole("ADMIN").anyRequest().authenticated())
+                        
+                        // Rutas de platos - lectura para ambos roles, modificación solo ADMIN
+                        .requestMatchers(HttpMethod.GET, "/api/platos").hasAnyRole("ADMIN", "CLIENTE")
+                        .requestMatchers(HttpMethod.GET, "/api/platos/**").hasAnyRole("ADMIN", "CLIENTE")
+                        .requestMatchers(HttpMethod.POST, "/api/platos").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/platos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/platos/**").hasRole("ADMIN")
+                        
+                        // Rutas de ingredientes - solo ADMIN
+                        .requestMatchers("/api/ingredientes/**").hasRole("ADMIN")
+                        
+                        // Cualquier otra ruta requiere autenticación
+                        .anyRequest().authenticated())
+                        
                 .exceptionHandling(
-                        exceptions -> exceptions.accessDeniedHandler(accessDeniedHandler())
+                        exceptions -> exceptions
+                                .accessDeniedHandler(accessDeniedHandler())
                                 .authenticationEntryPoint(authenticationEntryPoint()))
+                                
                 .addFilterBefore(jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class);
+                        
         return http.build();
     }
 
@@ -69,9 +88,11 @@ public class SecurityConfig {
             response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
 
             ObjectMapper mapper = new ObjectMapper();
-            String jsonResponse = mapper.writeValueAsString(java.util.Map.of("type",
-                    "https://http.dev/problems/access-denied", "title", "Acceso denegado", "status",
-                    403, "detail", "No tienes permisos para acceder a este recurso"));
+            String jsonResponse = mapper.writeValueAsString(java.util.Map.of(
+                    "type", "https://http.dev/problems/access-denied", 
+                    "title", "Acceso denegado", 
+                    "status", 403, 
+                    "detail", "No tienes permisos para acceder a este recurso"));
 
             response.getWriter().write(jsonResponse);
         };
@@ -84,9 +105,11 @@ public class SecurityConfig {
             response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
 
             ObjectMapper mapper = new ObjectMapper();
-            String jsonResponse = mapper.writeValueAsString(java.util.Map.of("type",
-                    "https://http.dev/problems/unauthorized", "title", "No autorizado", "status",
-                    401, "detail", "Credenciales inválidas o faltantes"));
+            String jsonResponse = mapper.writeValueAsString(java.util.Map.of(
+                    "type", "https://http.dev/problems/unauthorized", 
+                    "title", "No autorizado", 
+                    "status", 401, 
+                    "detail", "Credenciales inválidas o faltantes"));
 
             response.getWriter().write(jsonResponse);
         };
@@ -94,11 +117,12 @@ public class SecurityConfig {
 
     @Bean
     UserDetailsService userDetailsService(UsuarioRepository usuarioRepository) {
-        // Adaptamos nuestra entidad Usuario a UserDetails de Spring Security.
         return username -> usuarioRepository.findByUsername(username)
                 .map(usuario -> org.springframework.security.core.userdetails.User
-                        .withUsername(usuario.getUsername()).password(usuario.getPassword())
-                        .roles(usuario.getRoles().stream().map(r -> r.getNombre())
+                        .withUsername(usuario.getUsername())
+                        .password(usuario.getPassword())
+                        .roles(usuario.getRoles().stream()
+                                .map(r -> r.getNombre())
                                 .toArray(String[]::new))
                         .build())
                 .orElseThrow(
@@ -108,8 +132,6 @@ public class SecurityConfig {
     @Bean
     DaoAuthenticationProvider daoAuthenticationProvider(UserDetailsService userDetailsService,
             PasswordEncoder passwordEncoder) {
-        // Provider de autenticación que usa nuestro UserDetailsService y el encoder
-        // para validar credentials en /api/auth/login.
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder);
         return provider;
@@ -118,9 +140,6 @@ public class SecurityConfig {
     @Bean
     AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
             throws Exception {
-        // Exponemos el AuthenticationManager que usará el controlador de login.
         return configuration.getAuthenticationManager();
     }
 }
-
-

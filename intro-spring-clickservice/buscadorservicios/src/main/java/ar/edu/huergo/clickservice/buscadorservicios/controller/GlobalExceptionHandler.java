@@ -17,20 +17,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Manejador global de excepciones de la API.
- *
- * Beneficios:
- * - Centraliza el manejo de errores: evita try/catch repetidos en controladores.
- * - Respuestas consistentes: devuelve Problem Details (RFC 7807) con estructura uniforme.
- * - Observabilidad: registra logs claros por tipo de error para facilitar el troubleshooting.
- *
- * Qué es:
- * - {@link RestControllerAdvice}: intercepta excepciones lanzadas por controladores REST
- *   y transforma los errores en respuestas HTTP estandarizadas.
- * - Usa {@link ProblemDetail} para describir el problema con status, title, detail y propiedades extra.
- * - Usa SLF4J vía Lombok (@Slf4j) para emitir logs con el nivel adecuado.
- */
+
 @Slf4j // Lombok: inyecta un logger SLF4J llamado 'log'
 @RestControllerAdvice
 public class GlobalExceptionHandler {

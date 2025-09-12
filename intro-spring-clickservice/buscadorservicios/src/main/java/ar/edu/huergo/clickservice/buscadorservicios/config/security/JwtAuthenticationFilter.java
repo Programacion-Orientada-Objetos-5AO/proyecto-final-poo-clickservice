@@ -21,56 +21,61 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private  JwtTokenService jwtTokenService;
-    private  UserDetailsService userDetailsService;
+    private final JwtTokenService jwtTokenService;
+    private final UserDetailsService userDetailsService;
 
     @Override
-    // Este método se ejecuta en cada solicitud HTTP que llega a la aplicación.
-    // Flujo resumido del filtro:
-    // 1) Lee el header Authorization y extrae el token si comienza con "Bearer ".
-    // 2) Usa JwtTokenService para obtener el username del token.
-    // 3) Si no hay autenticación previa en el contexto y el token es válido,
-    // crea un UsernamePasswordAuthenticationToken con las autoridades del usuario
-    // y lo coloca en el SecurityContext.
-    // 4) Continúa la cadena de filtros para que el request llegue al controlador.
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization"); //Obtiene el header Authorization
-        // Verifica si el header no es nulo y comienza con "Bearer "
-        // (es el formato estándar para tokens JWT).
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            String username = null;
-            // Intenta extraer el username del token usando JwtTokenService.
-            // Si falla, username se queda como null.
-            try {
-                username = jwtTokenService.extraerUsername(token);
-            } catch (Exception ignored) {
-            }
+        // Obtener el header Authorization
+        String authHeader = request.getHeader("Authorization");
+        
+        // Verificar si el header existe y tiene el formato correcto
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-            // Si hay un username y no hay autenticación previa en el contexto,
-            // carga los detalles del usuario desde el UserDetailsService.
-            // Si el token es válido, crea un UsernamePasswordAuthenticationToken
-            // con las autoridades del usuario y lo coloca en el SecurityContext.
-            // Esto permite que el usuario esté autenticado para el resto del request.
-            // Si el token no es válido, no se hace nada y el request sigue sin autenticación.
-            if (username != null
-                    && SecurityContextHolder.getContext().getAuthentication() == null) {
+        try {
+            // Extraer el token (sin "Bearer ")
+            String token = authHeader.substring(7);
+            
+            // Extraer el username del token
+            String username = jwtTokenService.extraerUsername(token);
+            
+            // Si hay username y no hay autenticación previa en el contexto
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                
+                // Cargar los detalles del usuario
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                
+                // Validar el token
                 if (jwtTokenService.esTokenValido(token, userDetails)) {
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(userDetails, null,
-                                    userDetails.getAuthorities());
-                    authToken
-                            .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    // Crear el token de autenticación
+                    UsernamePasswordAuthenticationToken authToken = 
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails, 
+                                    null, 
+                                    userDetails.getAuthorities()
+                            );
+                    
+                    // Establecer detalles adicionales
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    
+                    // Establecer la autenticación en el contexto de seguridad
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
+            
+        } catch (Exception ex) {
+            // Log del error para debugging
+            logger.error("Error procesando JWT token: " + ex.getMessage());
+            // Limpiar el contexto de seguridad en caso de error
+            SecurityContextHolder.clearContext();
         }
 
+        // Continuar con la cadena de filtros
         filterChain.doFilter(request, response);
     }
 }
-
-

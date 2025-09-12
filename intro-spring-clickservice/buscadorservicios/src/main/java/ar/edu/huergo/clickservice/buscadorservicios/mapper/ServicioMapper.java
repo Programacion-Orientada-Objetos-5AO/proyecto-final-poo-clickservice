@@ -9,9 +9,6 @@ import org.springframework.stereotype.Component;
 import ar.edu.huergo.clickservice.buscadorservicios.dto.ServicioDTO;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.Servicio;
 
-// Un Mapper es una clase que se encarga de convertir un objeto de un tipo a otro.
-// En este caso, se encarga de convertir un objeto Servicio a un objeto ServicioDTO y viceversa.
-// Esto es útil para evitar que el controlador se encargue de la conversión de objetos.
 @Component
 public class ServicioMapper {
 
@@ -22,8 +19,11 @@ public class ServicioMapper {
         if (servicio == null) {
             return null;
         }
-        return new ServicioDTO(servicio.getId(), servicio.getNombre(), servicio.getPrecioHora()) {
-        };
+        return new ServicioDTO(
+            servicio.getId(), 
+            servicio.getNombre(), 
+            servicio.getPrecioHora()
+        );
     }
 
     /**
@@ -47,7 +47,9 @@ public class ServicioMapper {
         if (servicios == null) {
             return new ArrayList<>();
         }
-        return servicios.stream().map(this::toDTO).collect(Collectors.toList());
+        return servicios.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -57,6 +59,8 @@ public class ServicioMapper {
         if (serviciosDTO == null) {
             return new ArrayList<>();
         }
-        return serviciosDTO.stream().map(this::toEntity).collect(Collectors.toList());
+        return serviciosDTO.stream()
+                .map(this::toEntity)
+                .collect(Collectors.toList());
     }
 }

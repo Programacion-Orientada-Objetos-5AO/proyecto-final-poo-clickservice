@@ -6,19 +6,23 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * DTO para transferencia de datos de Servicio
  * Representa los datos que se exponen en la API REST
  */
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
-public abstract class ServicioDTO {
-    Long id;
+public class ServicioDTO {
+    private Long id;
+    
     @NotBlank(message = "El nombre del servicio es obligatorio")
     @Size(min = 3, max = 50, message = "El nombre del servicio debe tener entre 3 y 50 caracteres")
-    String nombre;
+    private String nombre;
+    
     @Positive(message = "El precio por hora debe ser positivo")
     @NotNull(message = "El precio por hora no puede ser nulo")
-    Double precioHora;
+    private Double precioHora;
 }
