@@ -1,14 +1,30 @@
 package ar.edu.huergo.clickservice.buscadorservicios.entity;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import java.time.LocalDateTime;
+import java.util.Set;
+
+import ar.edu.huergo.clickservice.buscadorservicios.entity.security.Usuario;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ar.edu.huergo.clickservice.buscadorservicios.entity.security.Usuario;
-
-import java.time.LocalDateTime;
-import java.util.Set;
 
 /**
  * Entidad que representa un profesional en la plataforma ClickService.
@@ -73,7 +89,10 @@ public class Profesional {
     // Zona de trabajo (puede ser una dirección o descripción de la zona)
     @Size(max = 200, message = "La zona de trabajo no puede exceder los 200 caracteres")
     @Column(name = "zona_trabajo", length = 200)
-    private String zonaTrabajoFe LocalDateTime fechaRegistro = LocalDateTime.now();
+    private String zonaTrabajo;
+
+    @Column(name = "fecha_registro")
+    private LocalDateTime fechaRegistro = LocalDateTime.now();
 
     @PrePersist
     protected void onCreate() {

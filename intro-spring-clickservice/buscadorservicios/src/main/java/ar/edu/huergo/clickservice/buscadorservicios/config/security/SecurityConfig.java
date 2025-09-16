@@ -38,29 +38,24 @@ public class SecurityConfig {
                         // Rutas públicas - no requieren autenticación
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/usuarios/registrar").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/usuarios/registrar-profesional").permitAll()
                         
                         // Rutas de servicios - configuración por método HTTP y rol
-                        .requestMatchers(HttpMethod.GET, "/api/servicios").hasAnyRole("ADMIN", "CLIENTE")
-                        .requestMatchers(HttpMethod.GET, "/api/servicios/**").hasAnyRole("ADMIN", "CLIENTE")
+                        .requestMatchers(HttpMethod.GET, "/api/servicios").hasAnyRole("ADMIN", "CLIENTE", "PROFESIONAL")
+                        .requestMatchers(HttpMethod.GET, "/api/servicios/**").hasAnyRole("ADMIN", "CLIENTE", "PROFESIONAL")
                         .requestMatchers(HttpMethod.POST, "/api/servicios").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/servicios/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/servicios/**").hasRole("ADMIN")
                         
+                        // Rutas de profesionales
+                        .requestMatchers(HttpMethod.GET, "/api/profesionales").hasAnyRole("ADMIN", "CLIENTE")
+                        .requestMatchers(HttpMethod.GET, "/api/profesionales/**").hasAnyRole("ADMIN", "CLIENTE", "PROFESIONAL")
+                        .requestMatchers(HttpMethod.POST, "/api/profesionales").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/profesionales/**").hasAnyRole("ADMIN", "PROFESIONAL")
+                        .requestMatchers(HttpMethod.DELETE, "/api/profesionales/**").hasRole("ADMIN")
+                        
                         // Rutas de usuarios - solo ADMIN puede ver todos los usuarios
                         .requestMatchers(HttpMethod.GET, "/api/usuarios").hasRole("ADMIN")
-                        
-                        // Rutas de pedidos - reporte solo para ADMIN
-                        .requestMatchers(HttpMethod.GET, "/api/pedidos/reporte").hasRole("ADMIN")
-                        
-                        // Rutas de platos - lectura para ambos roles, modificación solo ADMIN
-                        .requestMatchers(HttpMethod.GET, "/api/platos").hasAnyRole("ADMIN", "CLIENTE")
-                        .requestMatchers(HttpMethod.GET, "/api/platos/**").hasAnyRole("ADMIN", "CLIENTE")
-                        .requestMatchers(HttpMethod.POST, "/api/platos").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/platos/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/platos/**").hasRole("ADMIN")
-                        
-                        // Rutas de ingredientes - solo ADMIN
-                        .requestMatchers("/api/ingredientes/**").hasRole("ADMIN")
                         
                         // Cualquier otra ruta requiere autenticación
                         .anyRequest().authenticated())

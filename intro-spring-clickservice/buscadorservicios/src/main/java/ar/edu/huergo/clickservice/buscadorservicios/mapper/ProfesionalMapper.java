@@ -1,16 +1,17 @@
 package ar.edu.huergo.clickservice.buscadorservicios.mapper;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import ar.edu.huergo.clickservice.buscadorservicios.dto.ProfesionalDTO;
 import ar.edu.huergo.clickservice.buscadorservicios.dto.ServicioDTO;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.Profesional;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.Servicio;
 import ar.edu.huergo.clickservice.buscadorservicios.mapper.security.UsuarioMapper;
-
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class ProfesionalMapper {
@@ -59,7 +60,6 @@ public class ProfesionalMapper {
 
     /**
      * Convierte un ProfesionalDTO a entidad Profesional
-     * Nota: No mapea el usuario ni los servicios, eso se debe hacer en el servicio
      */
     public Profesional toEntity(ProfesionalDTO dto) {
         if (dto == null) {
@@ -104,23 +104,5 @@ public class ProfesionalMapper {
         return profesionalesDTO.stream()
                 .map(this::toEntity)
                 .collect(Collectors.toList());
-    }
-
-    /**
-     * Actualiza una entidad Profesional existente con datos de un DTO
-     * Mantiene el ID, usuario y servicios existentes
-     */
-    public void updateEntityFromDTO(ProfesionalDTO dto, Profesional profesional) {
-        if (dto == null || profesional == null) {
-            return;
-        }
-
-        // Actualizar solo los campos modificables
-        profesional.setNombreCompleto(dto.getNombreCompleto());
-        profesional.setTelefono(dto.getTelefono());
-        profesional.setDescripcion(dto.getDescripcion());
-        profesional.setDisponible(dto.getDisponible());
-        profesional.setZonaTrabajo(dto.getZonaTrabajo());
-        // No actualizar calificación, trabajos realizados, usuario ni servicios aquí
     }
 }

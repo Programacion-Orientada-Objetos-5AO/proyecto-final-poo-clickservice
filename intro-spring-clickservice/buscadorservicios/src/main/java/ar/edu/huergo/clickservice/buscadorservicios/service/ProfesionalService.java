@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import ar.edu.huergo.clickservice.buscadorservicios.entity.Profesional;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.Servicio;
@@ -14,7 +13,6 @@ import ar.edu.huergo.clickservice.buscadorservicios.repository.ServicioRepositor
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
-@Transactional
 public class ProfesionalService {
 
     @Autowired
@@ -27,51 +25,49 @@ public class ProfesionalService {
         return profesionalRepository.findAll();
     }
 
-    public Profesional obtenerProfesionalPorId(Long id) {
+    public Profesional obtenerProfesionalPorId(Long id) throws EntityNotFoundException {
         return profesionalRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Profesional no encontrado con id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Profesional no encontrado"));
     }
 
     public Profesional crearProfesional(Profesional profesional) {
         return profesionalRepository.save(profesional);
     }
 
-    public Profesional actualizarProfesional(Long id, Profesional profesionalActualizado) {
+    public Profesional actualizarProfesional(Long id, Profesional profesional) throws EntityNotFoundException {
         Profesional profesionalExistente = obtenerProfesionalPorId(id);
         
-        profesionalExistente.setNombreCompleto(profesionalActualizado.getNombreCompleto());
-        profesionalExistente.setTelefono(profesionalActualizado.getTelefono());
-        profesionalExistente.setDescripcion(profesionalActualizado.getDescripcion());
-        profesionalExistente.setDisponible(profesionalActualizado.getDisponible());
-        profesionalExistente.setZonaTrabajo(profesionalActualizado.getZonaTrabajo());
+        profesionalExistente.setNombreCompleto(profesional.getNombreCompleto());
+        profesionalExistente.setTelefono(profesional.getTelefono());
+        profesionalExistente.setDescripcion(profesional.getDescripcion());
+        profesionalExistente.setDisponible(profesional.getDisponible());
+        profesionalExistente.setZonaTrabajo(profesional.getZonaTrabajo());
         
         return profesionalRepository.save(profesionalExistente);
     }
 
-    public void eliminarProfesional(Long id) {
-        if (!profesionalRepository.existsById(id)) {
-            throw new EntityNotFoundException("Profesional no encontrado con id: " + id);
-        }
-        profesionalRepository.deleteById(id);
+    public void eliminarProfesional(Long id) throws EntityNotFoundException {
+        Profesional profesional = obtenerProfesionalPorId(id);
+        profesionalRepository.delete(profesional);
     }
 
     public List<Profesional> obtenerProfesionalesPorServicio(Long servicioId) {
-        return profesionalRepository.findByServicioIdAndDisponibleTrue(servicioId);
+        return profesionalRepository.findByServiciosIdAndDisponibleTrue(servicioId);
     }
 
     public List<Profesional> obtenerProfesionalesDisponibles() {
         return profesionalRepository.findByDisponibleTrue();
     }
 
-    public Profesional asignarServicios(Long profesionalId, Set<Long> serviciosIds) {
+    public Profesional asignarServicios(Long profesionalId, Set<Long> serviciosIds) throws EntityNotFoundException {
         Profesional profesional = obtenerProfesionalPorId(profesionalId);
         Set<Servicio> servicios = Set.copyOf(servicioRepository.findAllById(serviciosIds));
         profesional.setServicios(servicios);
         return profesionalRepository.save(profesional);
     }
 
-    public Profesional obtenerProfesionalPorUsuarioId(Long usuarioId) {
+    public Profesional obtenerProfesionalPorUsuarioId(Long usuarioId) throws EntityNotFoundException {
         return profesionalRepository.findByUsuarioId(usuarioId)
-                .orElseThrow(() -> new EntityNotFoundException("Profesional no encontrado para el usuario con id: " + usuarioId));
+                .orElseThrow(() -> new EntityNotFoundException("Profesional no encontrado"));
     }
 }
