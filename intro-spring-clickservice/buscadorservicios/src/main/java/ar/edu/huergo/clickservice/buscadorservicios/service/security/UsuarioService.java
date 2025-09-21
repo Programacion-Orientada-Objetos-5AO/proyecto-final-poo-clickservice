@@ -5,11 +5,18 @@ import java.util.Set;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import ar.edu.huergo.clickservice.buscadorservicios.dto.security.RegistrarProfesionalDTO;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.Profesional;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.Servicio;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.security.Rol;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.security.Usuario;
+import ar.edu.huergo.clickservice.buscadorservicios.repository.ProfesionalRepository;
+import ar.edu.huergo.clickservice.buscadorservicios.repository.ServicioRepository;
 import ar.edu.huergo.clickservice.buscadorservicios.repository.security.RolRepository;
 import ar.edu.huergo.clickservice.buscadorservicios.repository.security.UsuarioRepository;
+import ar.edu.huergo.clickservice.buscadorservicios.util.PasswordValidator;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -18,6 +25,8 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final RolRepository rolRepository;
+    private final ProfesionalRepository profesionalRepository;
+    private final ServicioRepository servicioRepository;
 
     public List<Usuario> getAllUsuarios() {
         return usuarioRepository.findAll();
@@ -34,9 +43,60 @@ public class UsuarioService {
             throw new IllegalArgumentException("El nombre de usuario ya está en uso");
         }
 
+        // Validar la contraseña
+        PasswordValidator.validate(password);
+
         usuario.setPassword(passwordEncoder.encode(password));
-        Rol rolCliente = rolRepository.findByNombre("CLIENTE").orElseThrow(() -> new IllegalArgumentException("Rol 'CLIENTE' no encontrado"));
+        Rol rolCliente = rolRepository.findByNombre("CLIENTE")
+                .orElseThrow(() -> new IllegalArgumentException("Rol 'CLIENTE' no encontrado"));
         usuario.setRoles(Set.of(rolCliente));
         return usuarioRepository.save(usuario);
+    }
+
+    @Transactional
+    public Usuario registrarProfesional(RegistrarProfesionalDTO registrarProfesionalDTO) {
+        // Validaciones básicas
+        if (usuarioRepository.existsByUsername(registrarProfesionalDTO.getUsername())) {
+            throw new IllegalArgumentException("El nombre de usuario ya está en uso");
+        }
+
+        // Validar contraseña
+        PasswordValidator.validate(registrarProfesionalDTO.getPassword());
+
+        // Crear usuario
+        Usuario usuario = new Usuario();
+        usuario.setUsername(registrarProfesionalDTO.getUsername());
+        usuario.setPassword(passwordEncoder.encode(registrarProfesionalDTO.getPassword()));
+        
+        // Asignar rol de PROFESIONAL
+        Rol rolProfesional = rolRepository.findByNombre("PROFESIONAL")
+                .orElseGet(() -> rolRepository.save(new Rol("PROFESIONAL")));
+        usuario.setRoles(Set.of(rolProfesional));
+        
+        // Guardar usuario primero
+        Usuario usuarioGuardado = usuarioRepository.save(usuario);
+
+        // Crear profesional
+        Profesional profesional = new Profesional();
+        profesional.setUsuario(usuarioGuardado);
+        profesional.setNombreCompleto(registrarProfesionalDTO.getNombreCompleto());
+        profesional.setTelefono(registrarProfesionalDTO.getTelefono());
+        profesional.setDescripcion(registrarProfesionalDTO.getDescripcion());
+        profesional.setZonaTrabajo(registrarProfesionalDTO.getZonaTrabajo());
+        profesional.setDisponible(true);
+
+        // Asignar servicios
+        if (registrarProfesionalDTO.getServiciosIds() != null && !registrarProfesionalDTO.getServiciosIds().isEmpty()) {
+            Set<Servicio> servicios = Set.copyOf(servicioRepository.findAllById(registrarProfesionalDTO.getServiciosIds()));
+            if (servicios.size() != registrarProfesionalDTO.getServiciosIds().size()) {
+                throw new IllegalArgumentException("Uno o más servicios no existen");
+            }
+            profesional.setServicios(servicios);
+        }
+
+        // Guardar profesional
+        profesionalRepository.save(profesional);
+
+        return usuarioGuardado;
     }
 }

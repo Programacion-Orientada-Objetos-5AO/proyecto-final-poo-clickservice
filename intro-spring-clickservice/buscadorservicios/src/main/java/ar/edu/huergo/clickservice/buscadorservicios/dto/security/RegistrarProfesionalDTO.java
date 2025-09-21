@@ -18,15 +18,12 @@ public class RegistrarProfesionalDTO {
 
     // Datos de usuario
     @NotBlank(message = "El nombre de usuario es obligatorio")
-    @Size(min = 3, max = 50, message = "El nombre de usuario debe tener entre 3 y 50 caracteres")
+    @Email(message = "El formato del email no es válido")
     private String username;
 
-    @NotBlank(message = "El email es obligatorio")
-    @Email(message = "El formato del email no es válido")
-    private String email;
-
     @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 6, max = 100, message = "La contraseña debe tener entre 6 y 100 caracteres")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{16,}$", 
+             message = "La contraseña debe tener al menos 16 caracteres, una mayúscula, una minúscula, un número y un carácter especial")
     private String password;
 
     // Datos específicos del profesional

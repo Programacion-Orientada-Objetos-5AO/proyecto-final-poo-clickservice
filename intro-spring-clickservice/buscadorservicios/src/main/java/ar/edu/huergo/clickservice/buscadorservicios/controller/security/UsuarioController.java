@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ar.edu.huergo.clickservice.buscadorservicios.dto.security.RegistrarDTO;
+import ar.edu.huergo.clickservice.buscadorservicios.dto.security.RegistrarProfesionalDTO;
 import ar.edu.huergo.clickservice.buscadorservicios.dto.security.UsuarioDTO;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.security.Usuario;
 import ar.edu.huergo.clickservice.buscadorservicios.mapper.security.UsuarioMapper;
@@ -32,6 +33,12 @@ public class UsuarioController {
         return ResponseEntity.ok(nuevoUsuarioDTO);
     }
 
+    @PostMapping("/registrar-profesional")
+    public ResponseEntity<UsuarioDTO> registrarProfesional(@Valid @RequestBody RegistrarProfesionalDTO registrarProfesionalDTO) {
+        Usuario nuevoUsuario = usuarioService.registrarProfesional(registrarProfesionalDTO);
+        UsuarioDTO nuevoUsuarioDTO = usuarioMapper.toDTO(nuevoUsuario);
+        return ResponseEntity.ok(nuevoUsuarioDTO);
+    }
 
     @GetMapping
     public ResponseEntity<List<UsuarioDTO>> getAllUsuarios() {
@@ -39,5 +46,4 @@ public class UsuarioController {
         List<UsuarioDTO> usuarioDTOs = usuarioMapper.toDTOList(usuarios);
         return ResponseEntity.ok(usuarioDTOs);
     }
-    
 }
