@@ -54,7 +54,8 @@ public class Profesional {
     private String nombreCompleto;
 
     @NotBlank(message = "El teléfono es obligatorio")
-    @Pattern(regexp = "^[0-9+\\-\\s()]{8,20}$", message = "El formato del teléfono no es válido")
+    // Regex corregido: no permite múltiples signos + consecutivos
+    @Pattern(regexp = "^[+]?[0-9\\-\\s()]{7,19}$", message = "El formato del teléfono no es válido")
     @Column(nullable = false, length = 20)
     private String telefono;
 

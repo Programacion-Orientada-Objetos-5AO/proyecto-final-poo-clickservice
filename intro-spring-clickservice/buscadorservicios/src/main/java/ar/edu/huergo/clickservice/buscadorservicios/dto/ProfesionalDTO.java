@@ -31,7 +31,8 @@ public class ProfesionalDTO {
     private String nombreCompleto;
 
     @NotBlank(message = "El teléfono es obligatorio")
-    @Pattern(regexp = "^[0-9+\\-\\s()]{8,20}$", message = "El formato del teléfono no es válido")
+    // Regex corregido: no permite múltiples signos + consecutivos
+    @Pattern(regexp = "^[+]?[0-9\\-\\s()]{7,19}$", message = "El formato del teléfono no es válido")
     private String telefono;
 
     @Size(max = 500, message = "La descripción no puede exceder los 500 caracteres")
