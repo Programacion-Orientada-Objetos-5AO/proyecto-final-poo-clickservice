@@ -2,6 +2,7 @@ package ar.edu.huergo.clickservice.buscadorservicios.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,46 +28,104 @@ import ar.edu.huergo.clickservice.buscadorservicios.repository.security.UsuarioR
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    /**
+     * Configuración de seguridad para rutas WEB (/web/**)
+     * Usa autenticación basada en sesiones (form login)
+     */
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http,
+    @Order(1)
+    SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .securityMatcher("/web/**")
+            .csrf(csrf -> csrf.disable()) // Puedes habilitarlo si lo necesitas
+            .authorizeHttpRequests(auth -> auth
+                // Rutas públicas web
+                .requestMatchers("/web/", "/web/login", "/web/registro", 
+                                "/web/registro-profesional", "/web/acerca", 
+                                "/web/servicios").permitAll()
+                
+                // Dashboard requiere autenticación
+                .requestMatchers("/web/dashboard").authenticated()
+                
+                // Cualquier otra ruta web requiere autenticación
+                .anyRequest().authenticated()
+            )
+            .formLogin(form -> form
+                .loginPage("/web/login")
+                .loginProcessingUrl("/web/login")
+                .defaultSuccessUrl("/web/dashboard", true)
+                .failureUrl("/web/login?error=true")
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/web/logout")
+                .logoutSuccessUrl("/web/login?logout=true")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .permitAll()
+            )
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(false)
+            );
+            
+        return http.build();
+    }
+
+    /**
+     * Configuración de seguridad para API REST (/api/**)
+     * Usa autenticación JWT (stateless)
+     */
+    @Bean
+    @Order(2)
+    SecurityFilterChain apiSecurityFilterChain(HttpSecurity http,
             JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         
-        http.csrf(csrf -> csrf.disable())
-                .sessionManagement(
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        // Rutas públicas - no requieren autenticación
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/usuarios/registrar").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/usuarios/registrar-profesional").permitAll()
-                        
-                        // Rutas de servicios - configuración por método HTTP y rol
-                        .requestMatchers(HttpMethod.GET, "/api/servicios").hasAnyRole("ADMIN", "CLIENTE", "PROFESIONAL")
-                        .requestMatchers(HttpMethod.GET, "/api/servicios/**").hasAnyRole("ADMIN", "CLIENTE", "PROFESIONAL")
-                        .requestMatchers(HttpMethod.POST, "/api/servicios").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/servicios/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/servicios/**").hasRole("ADMIN")
-                        
-                        // Rutas de profesionales
-                        .requestMatchers(HttpMethod.GET, "/api/profesionales").hasAnyRole("ADMIN", "CLIENTE")
-                        .requestMatchers(HttpMethod.GET, "/api/profesionales/**").hasAnyRole("ADMIN", "CLIENTE", "PROFESIONAL")
-                        .requestMatchers(HttpMethod.POST, "/api/profesionales").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/profesionales/**").hasAnyRole("ADMIN", "PROFESIONAL")
-                        .requestMatchers(HttpMethod.DELETE, "/api/profesionales/**").hasRole("ADMIN")
-                        
-                        // Rutas de usuarios - solo ADMIN puede ver todos los usuarios
-                        .requestMatchers(HttpMethod.GET, "/api/usuarios").hasRole("ADMIN")
-                        
-                        // Cualquier otra ruta requiere autenticación
-                        .anyRequest().authenticated())
-                        
-                .exceptionHandling(
-                        exceptions -> exceptions
-                                .accessDeniedHandler(accessDeniedHandler())
-                                .authenticationEntryPoint(authenticationEntryPoint()))
-                                
-                .addFilterBefore(jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class);
+        http
+            .securityMatcher("/api/**")
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> 
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                // Rutas públicas API - no requieren autenticación
+                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/usuarios/registrar").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/usuarios/registrar-profesional").permitAll()
+                
+                // Rutas de servicios - configuración por método HTTP y rol
+                .requestMatchers(HttpMethod.GET, "/api/servicios").hasAnyRole("ADMIN", "CLIENTE", "PROFESIONAL")
+                .requestMatchers(HttpMethod.GET, "/api/servicios/**").hasAnyRole("ADMIN", "CLIENTE", "PROFESIONAL")
+                .requestMatchers(HttpMethod.POST, "/api/servicios").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/servicios/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/servicios/**").hasRole("ADMIN")
+                
+                // Rutas de profesionales
+                .requestMatchers(HttpMethod.GET, "/api/profesionales").hasAnyRole("ADMIN", "CLIENTE")
+                .requestMatchers(HttpMethod.GET, "/api/profesionales/**").hasAnyRole("ADMIN", "CLIENTE", "PROFESIONAL")
+                .requestMatchers(HttpMethod.POST, "/api/profesionales").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/profesionales/**").hasAnyRole("ADMIN", "PROFESIONAL")
+                .requestMatchers(HttpMethod.DELETE, "/api/profesionales/**").hasRole("ADMIN")
+                
+                // Rutas de solicitudes
+                .requestMatchers(HttpMethod.GET, "/api/solicitudes").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/solicitudes/**").hasAnyRole("ADMIN", "CLIENTE", "PROFESIONAL")
+                .requestMatchers(HttpMethod.POST, "/api/solicitudes").hasAnyRole("ADMIN", "CLIENTE")
+                .requestMatchers(HttpMethod.PUT, "/api/solicitudes/**").hasAnyRole("ADMIN", "CLIENTE", "PROFESIONAL")
+                .requestMatchers(HttpMethod.DELETE, "/api/solicitudes/**").hasRole("ADMIN")
+                
+                // Rutas de usuarios - solo ADMIN puede ver todos los usuarios
+                .requestMatchers(HttpMethod.GET, "/api/usuarios").hasRole("ADMIN")
+                
+                // Cualquier otra ruta API requiere autenticación
+                .anyRequest().authenticated()
+            )
+            .exceptionHandling(exceptions -> exceptions
+                .accessDeniedHandler(accessDeniedHandler())
+                .authenticationEntryPoint(authenticationEntryPoint())
+            )
+            .addFilterBefore(jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class);
                         
         return http.build();
     }
