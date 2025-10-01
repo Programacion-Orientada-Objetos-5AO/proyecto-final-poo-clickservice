@@ -51,6 +51,16 @@ public class Usuario {
         this.username = username;
         this.password = password;
     }
+
+    public void setNombreCompleto(String string) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setNombreCompleto'");
+    }
+
+    public void setEmail(String string) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setEmail'");
+    }
 }
 
 

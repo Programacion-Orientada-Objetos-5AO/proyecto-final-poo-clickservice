@@ -2,7 +2,6 @@ package ar.edu.huergo.clickservice.buscadorservicios.repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -20,13 +19,12 @@ import ar.edu.huergo.clickservice.buscadorservicios.entity.Servicio;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.SolicitudServicio;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.SolicitudServicio.EstadoSolicitud;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.security.Usuario;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 
 @DataJpaTest
 @DisplayName("Tests de Validación en Repositorio - SolicitudServicio")
-class SolicitudServicioRepositoryValidationTest {
+class SolicitudServicioRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;

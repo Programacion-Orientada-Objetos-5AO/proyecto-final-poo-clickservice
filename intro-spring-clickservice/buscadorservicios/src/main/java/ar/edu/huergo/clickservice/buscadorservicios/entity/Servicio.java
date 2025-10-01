@@ -46,5 +46,15 @@ public class Servicio {
     @Column(nullable = false, name = "precio_hora")
     private Double precioHora;
 
+    public void setDescripcion(String string) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setDescripcion'");
+    }
+
+    public void setCategoria(String string) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setCategoria'");
+    }
+
 
 }
