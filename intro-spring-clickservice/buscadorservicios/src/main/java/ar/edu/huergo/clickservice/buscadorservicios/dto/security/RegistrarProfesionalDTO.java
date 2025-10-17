@@ -5,7 +5,9 @@ import java.util.Set;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,6 +23,18 @@ import lombok.NoArgsConstructor;
 public class RegistrarProfesionalDTO {
 
     // Datos de usuario
+    @NotBlank(message = "El nombre es obligatorio")
+    @Size(max = 60, message = "El nombre no puede exceder los 60 caracteres")
+    private String nombre;
+
+    @NotBlank(message = "El apellido es obligatorio")
+    @Size(max = 60, message = "El apellido no puede exceder los 60 caracteres")
+    private String apellido;
+
+    @NotBlank(message = "El DNI es obligatorio")
+    @Pattern(regexp = "^\\d{7,10}$", message = "El DNI debe tener entre 7 y 10 dígitos")
+    private String dni;
+
     @NotBlank(message = "El nombre de usuario es obligatorio")
     @Email(message = "El formato del email no es válido")
     private String username;
@@ -29,6 +43,14 @@ public class RegistrarProfesionalDTO {
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{16,}$", 
              message = "La contraseña debe tener al menos 16 caracteres, una mayúscula, una minúscula, un número y un carácter especial")
     private String password;
+
+    @NotBlank(message = "La calle es obligatoria")
+    @Size(max = 120, message = "La calle no puede exceder los 120 caracteres")
+    private String calle;
+
+    @NotNull(message = "La altura es obligatoria")
+    @Positive(message = "La altura debe ser un número positivo")
+    private Integer altura;
 
     // Datos específicos del profesional
     @NotBlank(message = "El nombre completo es obligatorio")
@@ -49,4 +71,8 @@ public class RegistrarProfesionalDTO {
     // IDs de los servicios que puede ofrecer el profesional
     @NotEmpty(message = "Debe seleccionar al menos un servicio")
     private Set<Long> serviciosIds;
+
+    public void setDni(String dni) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

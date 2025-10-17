@@ -44,7 +44,7 @@ public class BuscadorServiciosWebController {
         List<Servicio> servicios = servicioService.obtenerTodosLosServicios();
         model.addAttribute("servicios", servicios);
         model.addAttribute("titulo", "Servicios Disponibles");
-        return "servicios/lista";
+        return "auth/index";
     }
 
     /**
@@ -71,14 +71,20 @@ public class BuscadorServiciosWebController {
     public String registro(Model model) {
         model.addAttribute("usuario", new Usuario());
         model.addAttribute("titulo", "Registro de Cliente");
-        return "auth/registro";
+        return "auth/registro"; 
     }
 
     /**
      * Procesar registro de cliente
      */
     @PostMapping("/registro")
-    public String procesarRegistro(@RequestParam("username") String username,
+    public String procesarRegistro(@RequestParam("nombre") String nombre,
+                                  @RequestParam("apellido") String apellido,
+                                  @RequestParam("dni") String dni,
+                                  @RequestParam("telefono") String telefono,
+                                  @RequestParam("calle") String calle,
+                                  @RequestParam("altura") String altura,
+                                  @RequestParam("username") String username,
                                   @RequestParam("password") String password,
                                   @RequestParam("verificacionPassword") String verificacionPassword,
                                   RedirectAttributes redirectAttributes) {
@@ -89,10 +95,29 @@ public class BuscadorServiciosWebController {
                 return "redirect:/web/registro";
             }
 
+            Integer alturaNumero;
+            try {
+                alturaNumero = Integer.parseInt(altura);
+            } catch (NumberFormatException e) {
+                redirectAttributes.addFlashAttribute("error", "La altura debe ser un número válido");
+                return "redirect:/web/registro";
+            }
+
+            if (alturaNumero <= 0) {
+                redirectAttributes.addFlashAttribute("error", "La altura debe ser un número positivo");
+                return "redirect:/web/registro";
+            }
+
             // Crear usuario
             Usuario usuario = new Usuario();
+            usuario.setNombre(nombre);
+            usuario.setApellido(apellido);
+            usuario.setDni(dni);
+            usuario.setTelefono(telefono);
+            usuario.setCalle(calle);
+            usuario.setAltura(alturaNumero);
             usuario.setUsername(username);
-            
+
             // Registrar usuario con rol CLIENTE
             usuarioService.registrar(usuario, password, verificacionPassword);
             
@@ -125,6 +150,11 @@ public class BuscadorServiciosWebController {
      */
     @PostMapping("/registro-profesional")
     public String procesarRegistroProfesional(
+            @RequestParam("nombre") String nombre,
+            @RequestParam("apellido") String apellido,
+            @RequestParam("dni") String dni,
+            @RequestParam("calle") String calle,
+            @RequestParam("altura") String altura,
             @RequestParam("username") String username,
             @RequestParam("password") String password,
             @RequestParam("nombreCompleto") String nombreCompleto,
@@ -133,13 +163,31 @@ public class BuscadorServiciosWebController {
             @RequestParam(value = "zonaTrabajo", required = false) String zonaTrabajo,
             @RequestParam("serviciosIds") Set<Long> serviciosIds,
             RedirectAttributes redirectAttributes) {
-        
+
         try {
+            Integer alturaNumero;
+            try {
+                alturaNumero = Integer.parseInt(altura);
+            } catch (NumberFormatException e) {
+                redirectAttributes.addFlashAttribute("error", "La altura debe ser un número válido");
+                return "redirect:/web/registro-profesional";
+            }
+
+            if (alturaNumero <= 0) {
+                redirectAttributes.addFlashAttribute("error", "La altura debe ser un número positivo");
+                return "redirect:/web/registro-profesional";
+            }
+
             // Crear DTO para registro de profesional
-            ar.edu.huergo.clickservice.buscadorservicios.dto.security.RegistrarProfesionalDTO dto = 
+            ar.edu.huergo.clickservice.buscadorservicios.dto.security.RegistrarProfesionalDTO dto =
                 new ar.edu.huergo.clickservice.buscadorservicios.dto.security.RegistrarProfesionalDTO();
+            dto.setNombre(nombre);
+            dto.setApellido(apellido);
+            dto.setDni(dni);
             dto.setUsername(username);
             dto.setPassword(password);
+            dto.setCalle(calle);
+            dto.setAltura(alturaNumero);
             dto.setNombreCompleto(nombreCompleto);
             dto.setTelefono(telefono);
             dto.setDescripcion(descripcion);

@@ -48,6 +48,10 @@ public class UsuarioService {
             throw new IllegalArgumentException("El nombre de usuario ya está en uso");
         }
 
+        if (usuarioRepository.existsByDni(usuario.getDni())) {
+            throw new IllegalArgumentException("El DNI ya está en uso");
+        }
+
         // TEMPORAL: Comentar validación de password para que pasen los tests
         // En producción, los DTOs ya validan las contraseñas con @Pattern
         // PasswordValidator.validate(password);
@@ -70,12 +74,22 @@ public class UsuarioService {
             throw new IllegalArgumentException("El nombre de usuario ya está en uso");
         }
 
+        if (usuarioRepository.existsByDni(registrarProfesionalDTO.getDni())) {
+            throw new IllegalArgumentException("El DNI ya está en uso");
+        }
+
         // Validar contraseña - propagar excepción original
         PasswordValidator.validate(registrarProfesionalDTO.getPassword());
 
         // Crear usuario
         Usuario usuario = new Usuario();
+        usuario.setNombre(registrarProfesionalDTO.getNombre());
+        usuario.setApellido(registrarProfesionalDTO.getApellido());
+        usuario.setDni(registrarProfesionalDTO.getDni());
         usuario.setUsername(registrarProfesionalDTO.getUsername());
+        usuario.setTelefono(registrarProfesionalDTO.getTelefono());
+        usuario.setCalle(registrarProfesionalDTO.getCalle());
+        usuario.setAltura(registrarProfesionalDTO.getAltura());
         usuario.setPassword(passwordEncoder.encode(registrarProfesionalDTO.getPassword()));
         
         // Asignar rol de PROFESIONAL - puede fallar si no existe

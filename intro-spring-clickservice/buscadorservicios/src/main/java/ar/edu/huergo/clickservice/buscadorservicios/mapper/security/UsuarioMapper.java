@@ -15,7 +15,16 @@ public class UsuarioMapper {
         if (usuario == null) {
             return null;
         }
-        return new UsuarioDTO(usuario.getUsername(), usuario.getRoles().stream()
+        return new UsuarioDTO(
+                usuario.getId(),
+                usuario.getNombre(),
+                usuario.getApellido(),
+                usuario.getDni(),
+                usuario.getTelefono(),
+                usuario.getCalle(),
+                usuario.getAltura(),
+                usuario.getUsername(),
+                usuario.getRoles().stream()
                 .map(Rol::getNombre)
                 .toList());
     }
@@ -31,6 +40,12 @@ public class UsuarioMapper {
             return null;
         }
         Usuario usuario = new Usuario();
+        usuario.setNombre(registrarDTO.nombre());
+        usuario.setApellido(registrarDTO.apellido());
+        usuario.setDni(registrarDTO.dni());
+        usuario.setTelefono(registrarDTO.telefono());
+        usuario.setCalle(registrarDTO.calle());
+        usuario.setAltura(registrarDTO.altura());
         usuario.setUsername(registrarDTO.username());
         return usuario;
     }

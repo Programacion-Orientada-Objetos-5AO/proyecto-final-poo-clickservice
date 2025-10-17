@@ -51,8 +51,7 @@ class SolicitudServicioRepositoryTest {
         clienteGuardado = new Usuario();
         clienteGuardado.setUsername("cliente_test");
         clienteGuardado.setPassword("password123");
-        clienteGuardado.setEmail("cliente@test.com");
-        clienteGuardado.setNombreCompleto("Cliente Test");
+        // Usuario does not define setNombreCompleto(String) in this model; omit setting full name here.
         clienteGuardado = entityManager.persistAndFlush(clienteGuardado);
 
         entityManager.clear();
