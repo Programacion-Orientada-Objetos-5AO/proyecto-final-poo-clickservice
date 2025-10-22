@@ -28,6 +28,7 @@ public class SolicitudServicioDTO {
     @NotNull(message = "El servicio es obligatorio")
     private ServicioDTO servicio;
 
+    @NotNull(message = "El cliente es obligatorio")
     private UsuarioDTO cliente;
 
     @NotBlank(message = "La descripción del problema es obligatoria")

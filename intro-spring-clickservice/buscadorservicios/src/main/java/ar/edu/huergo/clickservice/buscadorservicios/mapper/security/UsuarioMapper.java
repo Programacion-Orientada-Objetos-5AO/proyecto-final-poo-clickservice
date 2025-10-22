@@ -49,4 +49,20 @@ public class UsuarioMapper {
         usuario.setUsername(registrarDTO.username());
         return usuario;
     }
+
+    public Usuario toEntity(UsuarioDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+        Usuario usuario = new Usuario();
+        usuario.setId(dto.id());
+        usuario.setNombre(dto.nombre());
+        usuario.setApellido(dto.apellido());
+        usuario.setDni(dto.dni());
+        usuario.setTelefono(dto.telefono());
+        usuario.setCalle(dto.calle());
+        usuario.setAltura(dto.altura());
+        usuario.setUsername(dto.username());
+        return usuario;
+    }
 }

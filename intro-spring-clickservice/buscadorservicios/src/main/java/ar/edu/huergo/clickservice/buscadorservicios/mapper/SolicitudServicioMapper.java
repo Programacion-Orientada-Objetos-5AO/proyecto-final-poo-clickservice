@@ -53,6 +53,8 @@ public class SolicitudServicioMapper {
 
         SolicitudServicio solicitudServicio = new SolicitudServicio();
         solicitudServicio.setId(dto.getId());
+        solicitudServicio.setServicio(servicioMapper.toEntity(dto.getServicio()));
+        solicitudServicio.setCliente(usuarioMapper.toEntity(dto.getCliente()));
         solicitudServicio.setDescripcionProblema(dto.getDescripcionProblema());
         solicitudServicio.setDireccionServicio(dto.getDireccionServicio());
         solicitudServicio.setFechaSolicitada(dto.getFechaSolicitada());

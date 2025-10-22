@@ -73,6 +73,6 @@ public class RegistrarProfesionalDTO {
     private Set<Long> serviciosIds;
 
     public void setDni(String dni) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.dni = dni;
     }
 }
