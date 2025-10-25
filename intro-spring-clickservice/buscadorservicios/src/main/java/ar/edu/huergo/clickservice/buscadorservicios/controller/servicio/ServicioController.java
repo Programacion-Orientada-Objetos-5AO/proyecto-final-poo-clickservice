@@ -1,5 +1,5 @@
 
-package ar.edu.huergo.clickservice.buscadorservicios.controller;
+package ar.edu.huergo.clickservice.buscadorservicios.controller.servicio;
 
 import java.net.URI;
 import java.util.List;
@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import ar.edu.huergo.clickservice.buscadorservicios.dto.ServicioDTO;
-import ar.edu.huergo.clickservice.buscadorservicios.entity.Servicio;
-import ar.edu.huergo.clickservice.buscadorservicios.mapper.ServicioMapper;
-import ar.edu.huergo.clickservice.buscadorservicios.service.ServicioService;
+import ar.edu.huergo.clickservice.buscadorservicios.dto.servicio.ServicioDTO;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.servicio.Servicio;
+import ar.edu.huergo.clickservice.buscadorservicios.mapper.servicio.ServicioMapper;
+import ar.edu.huergo.clickservice.buscadorservicios.service.servicio.ServicioService;
 import jakarta.validation.Valid;
 
 @RestController
