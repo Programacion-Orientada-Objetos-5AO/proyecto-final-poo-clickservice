@@ -1,4 +1,4 @@
-package ar.edu.huergo.clickservice.buscadorservicios.dto;
+package ar.edu.huergo.clickservice.buscadorservicios.dto.servicio;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
