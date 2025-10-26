@@ -1,4 +1,4 @@
-package ar.edu.huergo.clickservice.buscadorservicios.repository;
+package ar.edu.huergo.clickservice.buscadorservicios.repository.profesional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import ar.edu.huergo.clickservice.buscadorservicios.entity.AgendaSlot;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.profesional.AgendaSlot;
 
 @Repository
 public interface AgendaSlotRepository extends JpaRepository<AgendaSlot, Long> {

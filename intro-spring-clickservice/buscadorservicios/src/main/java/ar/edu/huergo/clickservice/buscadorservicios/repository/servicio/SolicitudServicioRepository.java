@@ -1,12 +1,12 @@
-package ar.edu.huergo.clickservice.buscadorservicios.repository;
+package ar.edu.huergo.clickservice.buscadorservicios.repository.servicio;
 
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import ar.edu.huergo.clickservice.buscadorservicios.entity.SolicitudServicio;
-import ar.edu.huergo.clickservice.buscadorservicios.entity.SolicitudServicio.EstadoSolicitud;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.servicio.SolicitudServicio;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.servicio.SolicitudServicio.EstadoSolicitud;
 
 @Repository
 public interface SolicitudServicioRepository extends JpaRepository<SolicitudServicio, Long> {

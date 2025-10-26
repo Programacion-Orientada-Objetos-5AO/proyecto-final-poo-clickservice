@@ -1,4 +1,4 @@
-package ar.edu.huergo.clickservice.buscadorservicios.repository;
+package ar.edu.huergo.clickservice.buscadorservicios.repository.profesional;
 
 import java.util.List;
 import java.util.Optional;
@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import ar.edu.huergo.clickservice.buscadorservicios.entity.Reseña;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.profesional.Reseña;
 
 @Repository
 public interface ReseñaRepository extends JpaRepository<Reseña, Long> {
