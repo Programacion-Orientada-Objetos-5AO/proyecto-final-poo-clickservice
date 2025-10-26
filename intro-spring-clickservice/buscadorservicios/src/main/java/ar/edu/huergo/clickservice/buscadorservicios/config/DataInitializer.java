@@ -7,10 +7,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import ar.edu.huergo.clickservice.buscadorservicios.entity.Servicio;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.servicio.Servicio;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.security.Rol;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.security.Usuario;
-import ar.edu.huergo.clickservice.buscadorservicios.repository.ServicioRepository;
+import ar.edu.huergo.clickservice.buscadorservicios.repository.servicio.ServicioRepository;
 import ar.edu.huergo.clickservice.buscadorservicios.repository.security.RolRepository;
 import ar.edu.huergo.clickservice.buscadorservicios.repository.security.UsuarioRepository;
 import ar.edu.huergo.clickservice.buscadorservicios.util.PasswordValidator;
