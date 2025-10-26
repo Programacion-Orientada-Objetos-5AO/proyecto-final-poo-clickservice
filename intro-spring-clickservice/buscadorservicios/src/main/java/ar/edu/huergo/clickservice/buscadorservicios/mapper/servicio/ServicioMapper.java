@@ -1,4 +1,4 @@
-package ar.edu.huergo.clickservice.buscadorservicios.mapper;
+package ar.edu.huergo.clickservice.buscadorservicios.mapper.servicio;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import ar.edu.huergo.clickservice.buscadorservicios.dto.ServicioDTO;
-import ar.edu.huergo.clickservice.buscadorservicios.entity.Servicio;
+import ar.edu.huergo.clickservice.buscadorservicios.dto.servicio.ServicioDTO;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.servicio.Servicio;
 
 @Component
 public class ServicioMapper {

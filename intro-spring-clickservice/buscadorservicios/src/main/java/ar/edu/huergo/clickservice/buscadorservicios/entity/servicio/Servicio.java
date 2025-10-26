@@ -1,4 +1,4 @@
-package ar.edu.huergo.clickservice.buscadorservicios.entity;
+package ar.edu.huergo.clickservice.buscadorservicios.entity.servicio;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

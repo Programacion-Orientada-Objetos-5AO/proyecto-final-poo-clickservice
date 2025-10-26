@@ -1,4 +1,4 @@
-package ar.edu.huergo.clickservice.buscadorservicios.mapper;
+package ar.edu.huergo.clickservice.buscadorservicios.mapper.profesional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,9 +6,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import ar.edu.huergo.clickservice.buscadorservicios.dto.AgendaSlotDTO;
-import ar.edu.huergo.clickservice.buscadorservicios.entity.AgendaSlot;
-import ar.edu.huergo.clickservice.buscadorservicios.entity.Profesional;
+import ar.edu.huergo.clickservice.buscadorservicios.dto.profesional.AgendaSlotDTO;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.profesional.AgendaSlot;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.profesional.Profesional;
 
 @Component
 public class AgendaSlotMapper {

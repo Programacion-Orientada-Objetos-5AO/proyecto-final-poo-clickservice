@@ -1,4 +1,4 @@
-package ar.edu.huergo.clickservice.buscadorservicios.entity;
+package ar.edu.huergo.clickservice.buscadorservicios.entity.servicio;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

@@ -1,4 +1,4 @@
-package ar.edu.huergo.clickservice.buscadorservicios.mapper;
+package ar.edu.huergo.clickservice.buscadorservicios.mapper.profesional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import ar.edu.huergo.clickservice.buscadorservicios.dto.ReseñaDTO;
-import ar.edu.huergo.clickservice.buscadorservicios.entity.Reseña;
+import ar.edu.huergo.clickservice.buscadorservicios.dto.profesional.ReseñaDTO;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.profesional.Reseña;
 
 @Component
 public class ReseñaMapper {

@@ -1,4 +1,4 @@
-package ar.edu.huergo.clickservice.buscadorservicios.mapper;
+package ar.edu.huergo.clickservice.buscadorservicios.mapper.profesional;
 
 import java.util.List;
 import java.util.Set;
@@ -7,10 +7,10 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ar.edu.huergo.clickservice.buscadorservicios.dto.ProfesionalDTO;
-import ar.edu.huergo.clickservice.buscadorservicios.dto.ServicioDTO;
-import ar.edu.huergo.clickservice.buscadorservicios.entity.Profesional;
-import ar.edu.huergo.clickservice.buscadorservicios.entity.Servicio;
+import ar.edu.huergo.clickservice.buscadorservicios.dto.profesional.ProfesionalDTO;
+import ar.edu.huergo.clickservice.buscadorservicios.dto.profesional.ServicioDTO;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.profesional.Profesional;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.profesional.Servicio;
 import ar.edu.huergo.clickservice.buscadorservicios.mapper.security.UsuarioMapper;
 
 @Component
