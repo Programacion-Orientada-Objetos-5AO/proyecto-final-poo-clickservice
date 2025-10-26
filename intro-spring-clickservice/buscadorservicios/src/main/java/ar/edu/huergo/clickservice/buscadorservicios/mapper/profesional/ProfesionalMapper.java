@@ -12,6 +12,7 @@ import ar.edu.huergo.clickservice.buscadorservicios.dto.servicio.ServicioDTO;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.profesional.Profesional;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.servicio.Servicio;
 import ar.edu.huergo.clickservice.buscadorservicios.mapper.security.UsuarioMapper;
+import ar.edu.huergo.clickservice.buscadorservicios.mapper.servicio.ServicioMapper;
 
 @Component
 public class ProfesionalMapper {

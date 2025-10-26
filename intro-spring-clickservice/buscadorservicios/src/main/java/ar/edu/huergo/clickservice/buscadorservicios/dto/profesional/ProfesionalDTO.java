@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 import ar.edu.huergo.clickservice.buscadorservicios.dto.security.UsuarioDTO;
+import ar.edu.huergo.clickservice.buscadorservicios.dto.servicio.ServicioDTO;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;

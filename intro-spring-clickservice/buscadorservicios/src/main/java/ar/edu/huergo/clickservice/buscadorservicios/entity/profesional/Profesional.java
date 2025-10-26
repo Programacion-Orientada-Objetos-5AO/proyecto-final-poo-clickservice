@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 import ar.edu.huergo.clickservice.buscadorservicios.entity.security.Usuario;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.servicio.Servicio;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -24,7 +25,9 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Entidad que representa un profesional en la plataforma ClickService.
@@ -32,9 +35,11 @@ import lombok.NoArgsConstructor;
  * Un profesional es un usuario que puede ofrecer uno o más servicios
  * y tiene información adicional como calificación, descripción y disponibilidad.
  */
-@Entity
+
 @Table(name = "profesionales")
-@Data
+@Entity
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Profesional {
@@ -110,4 +115,5 @@ public class Profesional {
             disponible = true;
         }
     }
+
 }
