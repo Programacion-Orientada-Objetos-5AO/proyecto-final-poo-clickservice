@@ -21,6 +21,7 @@ import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -69,6 +70,7 @@ public class Profesional {
     private String descripcion;
 
     // Calificación promedio del profesional (0.0 a 5.0)
+    @NotNull(message = "La calificación no puede ser nula")
     @DecimalMin(value = "0.0", message = "La calificación debe ser mayor o igual a 0")
     @DecimalMax(value = "5.0", message = "La calificación debe ser menor o igual a 5")
     @Column(name = "calificacion_promedio")
