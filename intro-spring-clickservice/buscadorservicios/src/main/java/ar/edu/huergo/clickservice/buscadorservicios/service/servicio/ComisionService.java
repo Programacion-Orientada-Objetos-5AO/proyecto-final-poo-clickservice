@@ -1,12 +1,12 @@
-package ar.edu.huergo.clickservice.buscadorservicios.service;
+package ar.edu.huergo.clickservice.buscadorservicios.service.servicio;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ar.edu.huergo.clickservice.buscadorservicios.entity.Comision;
-import ar.edu.huergo.clickservice.buscadorservicios.repository.ComisionRepository;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.servicio.Comision;
+import ar.edu.huergo.clickservice.buscadorservicios.repository.servicio.ComisionRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 @Service

@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import ar.edu.huergo.clickservice.buscadorservicios.entity.Servicio;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.servicio.Servicio;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.security.Usuario;
-import ar.edu.huergo.clickservice.buscadorservicios.service.ServicioService;
+import ar.edu.huergo.clickservice.buscadorservicios.service.servicio.ServicioService;
 import ar.edu.huergo.clickservice.buscadorservicios.service.security.UsuarioService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

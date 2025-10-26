@@ -8,9 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ar.edu.huergo.clickservice.buscadorservicios.dto.profesional.ProfesionalDTO;
-import ar.edu.huergo.clickservice.buscadorservicios.dto.profesional.ServicioDTO;
+import ar.edu.huergo.clickservice.buscadorservicios.dto.servicio.ServicioDTO;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.profesional.Profesional;
-import ar.edu.huergo.clickservice.buscadorservicios.entity.profesional.Servicio;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.servicio.Servicio;
 import ar.edu.huergo.clickservice.buscadorservicios.mapper.security.UsuarioMapper;
 
 @Component

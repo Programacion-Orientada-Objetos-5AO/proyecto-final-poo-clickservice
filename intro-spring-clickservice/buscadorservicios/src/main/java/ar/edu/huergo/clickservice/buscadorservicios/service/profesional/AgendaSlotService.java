@@ -1,14 +1,14 @@
-package ar.edu.huergo.clickservice.buscadorservicios.service;
+package ar.edu.huergo.clickservice.buscadorservicios.service.profesional;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ar.edu.huergo.clickservice.buscadorservicios.entity.AgendaSlot;
-import ar.edu.huergo.clickservice.buscadorservicios.entity.Profesional;
-import ar.edu.huergo.clickservice.buscadorservicios.repository.AgendaSlotRepository;
-import ar.edu.huergo.clickservice.buscadorservicios.repository.ProfesionalRepository;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.profesional.AgendaSlot;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.profesional.Profesional;
+import ar.edu.huergo.clickservice.buscadorservicios.repository.profesional.AgendaSlotRepository;
+import ar.edu.huergo.clickservice.buscadorservicios.repository.profesional.ProfesionalRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
