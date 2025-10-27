@@ -15,8 +15,10 @@ public interface AgendaSlotRepository extends JpaRepository<AgendaSlot, Long> {
 
     List<AgendaSlot> findByProfesionalIdAndDisponibleTrue(Long profesionalId);
 
-    boolean existsByProfesionalIdAndFechaInicioLessThanEqualAndFechaFinGreaterThanEqual(
+    // Solapamiento estricto: start < existingEnd && end > existingStart
+    boolean existsByProfesionalIdAndFechaInicioLessThanAndFechaFinGreaterThan(
             Long profesionalId,
-            LocalDateTime fechaInicio,
-            LocalDateTime fechaFin);
+            LocalDateTime fechaFin,
+            LocalDateTime fechaInicio
+    );
 }

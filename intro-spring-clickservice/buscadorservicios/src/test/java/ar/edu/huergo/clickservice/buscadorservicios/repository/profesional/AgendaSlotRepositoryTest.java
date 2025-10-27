@@ -1,12 +1,10 @@
 package ar.edu.huergo.clickservice.buscadorservicios.repository.profesional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,103 +12,135 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
+import ar.edu.huergo.clickservice.buscadorservicios.entity.profesional.AgendaSlot;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.profesional.Profesional;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.security.Usuario;
-import ar.edu.huergo.clickservice.buscadorservicios.entity.servicio.Servicio;
 
 @DataJpaTest
-class ProfesionalRepositoryTest {
+class AgendaSlotRepositoryTest {
 
     @Autowired
-    private ProfesionalRepository profesionalRepository;
+    private AgendaSlotRepository agendaSlotRepository;
 
     @Autowired
     private TestEntityManager entityManager;
 
-    private Servicio servicioPlomeria;
-    private Servicio servicioElectricidad;
-    private Profesional profesionalDisponible;
-    private Profesional profesionalNoDisponible;
+    private Profesional profesional;
+    private AgendaSlot slotDisponible;
+    private AgendaSlot slotNoDisponible;
 
     @BeforeEach
     void setUp() {
-        servicioPlomeria = new Servicio(null, "Plomería", 30.0);
-        servicioElectricidad = new Servicio(null, "Electricidad", 45.0);
-        entityManager.persist(servicioPlomeria);
-        entityManager.persist(servicioElectricidad);
+        profesional = persistirProfesional("disponible@example.com", "20123456");
+        Profesional otroProfesional = persistirProfesional("otro@example.com", "30123456");
 
-        Usuario usuarioDisponible = crearUsuario(1L, "disponible@example.com", "20123456");
-        Usuario usuarioNoDisponible = crearUsuario(2L, "nodisponible@example.com", "30123456");
-        entityManager.persist(usuarioDisponible);
-        entityManager.persist(usuarioNoDisponible);
+        slotDisponible = persistirAgendaSlot(
+            profesional,
+            LocalDateTime.of(2024, 10, 1, 9, 0),
+            LocalDateTime.of(2024, 10, 1, 11, 0),
+            true
+        );
 
-        profesionalDisponible = crearProfesional(usuarioDisponible, true);
-        profesionalDisponible.setServicios(Set.of(servicioPlomeria));
-        profesionalNoDisponible = crearProfesional(usuarioNoDisponible, false);
-        profesionalNoDisponible.setServicios(Set.of(servicioElectricidad));
+        slotNoDisponible = persistirAgendaSlot(
+            profesional,
+            LocalDateTime.of(2024, 10, 2, 9, 0),
+            LocalDateTime.of(2024, 10, 2, 11, 0),
+            false
+        );
 
-        entityManager.persist(profesionalDisponible);
-        entityManager.persist(profesionalNoDisponible);
+        persistirAgendaSlot(
+            otroProfesional,
+            LocalDateTime.of(2024, 10, 3, 14, 0),
+            LocalDateTime.of(2024, 10, 3, 16, 0),
+            true
+        );
+
         entityManager.flush();
+        entityManager.clear();
     }
 
     @Test
-    @DisplayName("Debería encontrar profesional por usuario")
-    void deberiaEncontrarProfesionalPorUsuario() {
-        // When
-        Optional<Profesional> profesional = profesionalRepository
-                .findByUsuarioId(profesionalDisponible.getUsuario().getId());
+    @DisplayName("Debería recuperar todos los slots por profesional")
+    void deberiaBuscarSlotsPorProfesional() {
+        List<AgendaSlot> slots = agendaSlotRepository.findByProfesionalId(profesional.getId());
 
-        // Then
-        assertTrue(profesional.isPresent());
-        assertEquals(profesionalDisponible.getId(), profesional.get().getId());
+        assertThat(slots)
+            .as("Debe devolver todos los slots asociados al profesional")
+            .hasSize(2)
+            .allMatch(slot -> slot.getProfesional().getId().equals(profesional.getId()))
+            .extracting(AgendaSlot::getId)
+            .containsExactlyInAnyOrder(slotDisponible.getId(), slotNoDisponible.getId());
     }
 
     @Test
-    @DisplayName("Debería listar profesionales disponibles")
-    void deberiaListarProfesionalesDisponibles() {
-        // When
-        List<Profesional> disponibles = profesionalRepository.findByDisponibleTrue();
+    @DisplayName("Debería listar sólo los slots disponibles por profesional")
+    void deberiaBuscarSlotsDisponiblesPorProfesional() {
+        List<AgendaSlot> disponibles = agendaSlotRepository.findByProfesionalIdAndDisponibleTrue(profesional.getId());
 
-        // Then
-        assertEquals(1, disponibles.size());
-        assertEquals(profesionalDisponible.getId(), disponibles.get(0).getId());
+        assertThat(disponibles)
+            .as("Debe devolver únicamente los slots marcados como disponibles")
+            .hasSize(1)
+            .allMatch(AgendaSlot::getDisponible)
+            .extracting(AgendaSlot::getId)
+            .containsExactly(slotDisponible.getId());
     }
 
     @Test
-    @DisplayName("Debería buscar profesionales disponibles por servicio")
-    void deberiaBuscarProfesionalesDisponiblesPorServicio() {
-        // When
-        List<Profesional> profesionales = profesionalRepository
-                .findByServiciosIdAndDisponibleTrue(servicioPlomeria.getId());
+    @DisplayName("Debería detectar solapamiento de horarios para un profesional")
+    void deberiaDetectarSolapamientoDeSlots() {
+        boolean existeSolapamiento = agendaSlotRepository
+            .existsByProfesionalIdAndFechaInicioLessThanAndFechaFinGreaterThan(
+                profesional.getId(),
+                LocalDateTime.of(2024, 10, 1, 12, 0), // fechaFin consulta (param 2)
+                LocalDateTime.of(2024, 10, 1, 10, 0)  // fechaInicio consulta (param 3)
+            );
 
-        // Then
-        assertEquals(1, profesionales.size());
-        assertEquals(profesionalDisponible.getId(), profesionales.get(0).getId());
+        assertThat(existeSolapamiento)
+            .as("Debe detectar cuando un nuevo rango horario se solapa con uno existente")
+            .isTrue();
     }
 
-    private Profesional crearProfesional(Usuario usuario, boolean disponible) {
+    // ===== Helpers =====
+
+    private AgendaSlot persistirAgendaSlot(
+        Profesional profesional,
+        LocalDateTime inicio,
+        LocalDateTime fin,
+        boolean disponible
+    ) {
+        AgendaSlot slot = new AgendaSlot();
+        slot.setProfesional(profesional);
+        slot.setFechaInicio(inicio);
+        slot.setFechaFin(fin);
+        slot.setDisponible(disponible);
+
+        entityManager.persist(slot);
+        return slot;
+    }
+
+    private Profesional persistirProfesional(String username, String dni) {
+        Usuario usuario = new Usuario();
+        usuario.setNombre("Nombre " + username);
+        usuario.setApellido("Apellido " + username);
+        usuario.setDni(dni);
+        usuario.setTelefono("+54 9 11 4000-" + dni.substring(0, 4));
+        usuario.setCalle("Calle Falsa");
+        usuario.setAltura(123);
+        usuario.setUsername(username);
+        usuario.setPassword("contraseña_segura_de_mas_de_16");
+
+        entityManager.persist(usuario);
+
         Profesional profesional = new Profesional();
         profesional.setUsuario(usuario);
-        profesional.setNombreCompleto("Profesional " + usuario.getNombre());
-        profesional.setTelefono("+54 9 11 4444-" + usuario.getId() + usuario.getId());
-        profesional.setDescripcion("Profesional altamente capacitado");
-        profesional.setDisponible(disponible);
+        profesional.setNombreCompleto("Profesional " + username);
+        profesional.setTelefono("+54 9 11 5000-" + dni.substring(0, 4));
+        profesional.setDescripcion("Profesional con amplia experiencia");
+        profesional.setDisponible(true);
         profesional.setZonaTrabajo("Zona Centro");
-        return profesional;
-    }
+        profesional.setServicios(new HashSet<>());
 
-    private Usuario crearUsuario(Long id, String username, String dni) {
-        Usuario usuario = new Usuario();
-        usuario.setId(id);
-        usuario.setNombre("Nombre" + id);
-        usuario.setApellido("Apellido" + id);
-        usuario.setDni(dni);
-        usuario.setTelefono("+54 9 11 5555-000" + id);
-        usuario.setCalle("Calle " + id);
-        usuario.setAltura(100 + id.intValue());
-        usuario.setUsername(username);
-        usuario.setPassword("contraseña_segura_para_usuario" + id);
-        return usuario;
+        entityManager.persist(profesional);
+        return profesional;
     }
 }

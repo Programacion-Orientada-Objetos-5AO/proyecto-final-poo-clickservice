@@ -1,13 +1,10 @@
 package ar.edu.huergo.clickservice.buscadorservicios.repository.servicio;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -27,104 +24,114 @@ class SolicitudServicioRepositoryTest {
     @Autowired
     private TestEntityManager entityManager;
 
-    private Servicio servicioPlomeria;
-    private Servicio servicioElectricidad;
-    private Usuario clienteJuan;
-    private Usuario clienteAna;
-
-    private SolicitudServicio solicitudPendiente;
-    private SolicitudServicio solicitudAsignada;
-    private SolicitudServicio solicitudCompletada;
-
-    @BeforeEach
-    void setUp() {
-        servicioPlomeria = new Servicio(null, "Plomería", 25.0);
-        servicioElectricidad = new Servicio(null, "Electricidad", 35.0);
-        entityManager.persist(servicioPlomeria);
-        entityManager.persist(servicioElectricidad);
-
-        clienteJuan = crearUsuario(1L, "juan@example.com", "20123456");
-        clienteAna = crearUsuario(2L, "ana@example.com", "30123456");
-        entityManager.persist(clienteJuan);
-        entityManager.persist(clienteAna);
-
-        solicitudPendiente = construirSolicitud(servicioPlomeria, clienteJuan,
-                "Perdida de agua en la cocina", EstadoSolicitud.PENDIENTE, LocalDate.now().plusDays(3));
-        solicitudAsignada = construirSolicitud(servicioPlomeria, clienteJuan,
-                "Instalación de termotanque", EstadoSolicitud.ASIGNADA, LocalDate.now().plusDays(5));
-        solicitudCompletada = construirSolicitud(servicioElectricidad, clienteAna,
-                "Revisión de instalación eléctrica", EstadoSolicitud.COMPLETADA, LocalDate.now().plusDays(7));
-
-        entityManager.persist(solicitudPendiente);
-        entityManager.persist(solicitudAsignada);
-        entityManager.persist(solicitudCompletada);
-        entityManager.flush();
-    }
-
     @Test
-    @DisplayName("Debería encontrar solicitudes por cliente")
     void deberiaEncontrarSolicitudesPorCliente() {
-        // When
+        Servicio servicioLimpieza = persistirServicio(1L);
+        Servicio servicioPintura = persistirServicio(2L);
+
+        Usuario clienteJuan = persistirUsuario(1L, "Juan", "Perez");
+        Usuario clienteAna = persistirUsuario(2L, "Ana", "Gomez");
+
+        persistirSolicitud(10L, servicioLimpieza, clienteJuan, EstadoSolicitud.PENDIENTE);
+        persistirSolicitud(11L, servicioPintura, clienteJuan, EstadoSolicitud.ASIGNADA);
+        persistirSolicitud(12L, servicioPintura, clienteAna, EstadoSolicitud.PENDIENTE);
+
+        entityManager.clear();
+
         List<SolicitudServicio> solicitudes =
-                solicitudServicioRepository.findByClienteId(clienteJuan.getId());
+            solicitudServicioRepository.findByClienteId(clienteJuan.getId());
 
-        // Then
-        assertEquals(2, solicitudes.size());
-        assertTrue(solicitudes.stream().allMatch(s -> s.getCliente().getId().equals(clienteJuan.getId())));
+        assertThat(solicitudes)
+            .hasSize(2)
+            .allMatch(solicitud -> solicitud.getCliente().getId().equals(clienteJuan.getId()));
     }
 
     @Test
-    @DisplayName("Debería filtrar solicitudes por estado")
-    void deberiaFiltrarSolicitudesPorEstado() {
-        // When
-        List<SolicitudServicio> solicitudesAsignadas =
-                solicitudServicioRepository.findByEstado(EstadoSolicitud.ASIGNADA);
+    void deberiaEncontrarSolicitudesPorEstado() {
+        Servicio servicioGas = persistirServicio(3L);
+        Usuario clienteLuis = persistirUsuario(3L, "Luis", "Martinez");
+        Usuario clienteLaura = persistirUsuario(4L, "Laura", "Lopez");
 
-        // Then
-        assertEquals(1, solicitudesAsignadas.size());
-        assertEquals(EstadoSolicitud.ASIGNADA, solicitudesAsignadas.get(0).getEstado());
+        persistirSolicitud(20L, servicioGas, clienteLuis, EstadoSolicitud.PENDIENTE);
+        persistirSolicitud(21L, servicioGas, clienteLaura, EstadoSolicitud.PENDIENTE);
+        persistirSolicitud(22L, servicioGas, clienteLuis, EstadoSolicitud.CANCELADA);
+
+        entityManager.clear();
+
+        List<SolicitudServicio> solicitudesPendientes =
+            solicitudServicioRepository.findByEstado(EstadoSolicitud.PENDIENTE);
+
+        assertThat(solicitudesPendientes)
+            .hasSize(2)
+            .allMatch(solicitud -> solicitud.getEstado() == EstadoSolicitud.PENDIENTE);
     }
 
     @Test
-    @DisplayName("Debería buscar solicitudes por servicio y estado")
-    void deberiaBuscarSolicitudesPorServicioYEstado() {
-        // When
-        List<SolicitudServicio> solicitudes = solicitudServicioRepository
-                .findByServicioIdAndEstado(servicioPlomeria.getId(), EstadoSolicitud.PENDIENTE);
+    void deberiaEncontrarSolicitudesPorServicioYEstado() {
+        Servicio servicioPlomeria = persistirServicio(5L);
+        Servicio servicioElectricidad = persistirServicio(6L);
 
-        // Then
-        assertEquals(1, solicitudes.size());
-        assertEquals(EstadoSolicitud.PENDIENTE, solicitudes.get(0).getEstado());
-        assertEquals(servicioPlomeria.getId(), solicitudes.get(0).getServicio().getId());
+        Usuario clienteMario = persistirUsuario(5L, "Mario", "Diaz");
+        Usuario clienteRosa = persistirUsuario(6L, "Rosa", "Suarez");
+
+        persistirSolicitud(30L, servicioPlomeria, clienteMario, EstadoSolicitud.PENDIENTE);
+        persistirSolicitud(31L, servicioPlomeria, clienteRosa, EstadoSolicitud.PENDIENTE);
+        persistirSolicitud(32L, servicioPlomeria, clienteMario, EstadoSolicitud.COMPLETADA);
+        persistirSolicitud(33L, servicioElectricidad, clienteMario, EstadoSolicitud.PENDIENTE);
+
+        entityManager.clear();
+
+        List<SolicitudServicio> solicitudesPendientes =
+            solicitudServicioRepository.findByServicioIdAndEstado(
+                servicioPlomeria.getId(), EstadoSolicitud.PENDIENTE);
+
+        assertThat(solicitudesPendientes)
+            .hasSize(2)
+            .allMatch(solicitud -> solicitud.getServicio().getId().equals(servicioPlomeria.getId())
+                && solicitud.getEstado() == EstadoSolicitud.PENDIENTE);
     }
 
-    private SolicitudServicio construirSolicitud(Servicio servicio, Usuario cliente, String descripcion,
-            EstadoSolicitud estado, LocalDate fechaSolicitada) {
+    private SolicitudServicio persistirSolicitud(Long indice, Servicio servicio, Usuario cliente, EstadoSolicitud estado) {
         SolicitudServicio solicitud = new SolicitudServicio();
         solicitud.setServicio(servicio);
         solicitud.setCliente(cliente);
-        solicitud.setDescripcionProblema(descripcion);
-        solicitud.setDireccionServicio("Av. Siempre Viva 742");
-        solicitud.setFechaSolicitada(fechaSolicitada);
-        solicitud.setFranjaHoraria("Mañana");
-        solicitud.setPresupuestoMaximo(20000.0);
+        solicitud.setDescripcionProblema(
+            "Descripcion detallada del problema numero " + indice + " con mas de diez caracteres");
+        solicitud.setDireccionServicio("Calle " + indice + " 1234, Piso 1");
+        solicitud.setFechaSolicitada(LocalDate.now().plusDays(indice.intValue() + 1));
+        solicitud.setFranjaHoraria("09:00-12:00");
+        solicitud.setPresupuestoMaximo(2500.0 + indice);
+        solicitud.setComentariosAdicionales("Comentario adicional para solicitud " + indice);
         solicitud.setEstado(estado);
-        solicitud.setFechaCreacion(LocalDateTime.now());
-        solicitud.setComentariosAdicionales("Contactar antes de llegar");
+
+        entityManager.persist(solicitud);
+        entityManager.flush();
         return solicitud;
     }
 
-    private Usuario crearUsuario(Long id, String username, String dni) {
+    private Servicio persistirServicio(Long indice) {
+        Servicio servicio = new Servicio();
+        servicio.setNombre("Servicio " + indice + " Especializado");
+        servicio.setPrecioHora(1800.0 + indice);
+
+        entityManager.persist(servicio);
+        entityManager.flush();
+        return servicio;
+    }
+
+    private Usuario persistirUsuario(Long indice, String nombre, String apellido) {
         Usuario usuario = new Usuario();
-        usuario.setId(id);
-        usuario.setNombre("Nombre" + id);
-        usuario.setApellido("Apellido" + id);
-        usuario.setDni(dni);
-        usuario.setTelefono("+54 9 11 5555-000" + id);
-        usuario.setCalle("Calle " + id);
-        usuario.setAltura(100 + id.intValue());
-        usuario.setUsername(username);
-        usuario.setPassword("contraseña_segura_para_usuario" + id);
+        usuario.setNombre(nombre);
+        usuario.setApellido(apellido);
+        usuario.setDni(String.format("%08d", 30000000 + indice));
+        usuario.setTelefono("+5491100" + String.format("%04d", indice));
+        usuario.setCalle("Calle Principal " + indice);
+        usuario.setAltura(500 + indice.intValue());
+        usuario.setUsername("usuario" + indice + "@mail.com");
+        usuario.setPassword("ContrasenaSegura" + indice + "XYZ");
+
+        entityManager.persist(usuario);
+        entityManager.flush();
         return usuario;
     }
 }

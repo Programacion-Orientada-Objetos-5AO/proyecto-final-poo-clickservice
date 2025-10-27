@@ -1,14 +1,12 @@
 package ar.edu.huergo.clickservice.buscadorservicios.repository.profesional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -17,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.profesional.Profesional;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.profesional.Reseña;
 import ar.edu.huergo.clickservice.buscadorservicios.entity.security.Usuario;
+import ar.edu.huergo.clickservice.buscadorservicios.entity.servicio.Servicio;
 
 @DataJpaTest
 class ReseñaRepositoryTest {
@@ -27,102 +26,117 @@ class ReseñaRepositoryTest {
     @Autowired
     private TestEntityManager entityManager;
 
-    private Profesional profesional;
-    private Usuario usuarioCliente;
-    private Reseña reseña1;
-    private Reseña reseña2;
-
-    @BeforeEach
-    void setUp() {
-        Usuario usuarioProfesional = crearUsuario(1L, "profesional@example.com", "20123456");
-        usuarioCliente = crearUsuario(2L, "cliente@example.com", "30123456");
-        entityManager.persist(usuarioProfesional);
-        entityManager.persist(usuarioCliente);
-
-        profesional = crearProfesional(usuarioProfesional);
-        entityManager.persist(profesional);
-
-        reseña1 = crearReseña(101L, 5, profesional, usuarioCliente);
-        reseña2 = crearReseña(102L, 4, profesional, usuarioCliente);
-
-        entityManager.persist(reseña1);
-        entityManager.persist(reseña2);
-        entityManager.flush();
-    }
-
     @Test
-    @DisplayName("Debería obtener reseñas por profesional")
     void deberiaObtenerReseñasPorProfesional() {
-        // When
+        Profesional profesional = persistirProfesional(1L);
+        Usuario clienteUno = persistirUsuario(100L);
+        Usuario clienteDos = persistirUsuario(101L);
+
+        persistirReseña(10L, clienteUno, profesional, 5, "Servicio excelente 123");
+        persistirReseña(11L, clienteDos, profesional, 4, "Muy buen trabajo 4567");
+
+        Profesional otroProfesional = persistirProfesional(2L);
+        persistirReseña(12L, persistirUsuario(102L), otroProfesional, 3, "Correcto pero mejorable");
+
+        entityManager.clear();
+
         List<Reseña> reseñas = reseñaRepository.findByProfesionalId(profesional.getId());
 
-        // Then
-        assertEquals(2, reseñas.size());
-        assertTrue(reseñas.stream().allMatch(r -> r.getProfesional().getId().equals(profesional.getId())));
+        assertThat(reseñas)
+            .hasSize(2)
+            .allMatch(r -> r.getProfesional().getId().equals(profesional.getId()));
     }
 
     @Test
-    @DisplayName("Debería obtener reseñas por usuario")
     void deberiaObtenerReseñasPorUsuario() {
-        // When
-        List<Reseña> reseñas = reseñaRepository.findByUsuarioId(usuarioCliente.getId());
+        Usuario usuario = persistirUsuario(200L);
+        Profesional profesional = persistirProfesional(3L);
+        persistirReseña(20L, usuario, profesional, 5, "Gran servicio brindado");
+        persistirReseña(21L, usuario, profesional, 4, "Trabajo muy prolijo 1");
+        persistirReseña(22L, persistirUsuario(201L), profesional, 2, "No cumplio lo esperado");
 
-        // Then
-        assertEquals(2, reseñas.size());
-        assertTrue(reseñas.stream().allMatch(r -> r.getUsuario().getId().equals(usuarioCliente.getId())));
+        entityManager.clear();
+
+        List<Reseña> reseñas = reseñaRepository.findByUsuarioId(usuario.getId());
+
+        assertThat(reseñas)
+            .hasSize(2)
+            .allMatch(r -> r.getUsuario().getId().equals(usuario.getId()));
     }
 
     @Test
-    @DisplayName("Debería encontrar reseña por orden")
-    void deberiaEncontrarReseñaPorOrden() {
-        // When
-        Optional<Reseña> reseña = reseñaRepository.findByOrdenId(reseña1.getOrdenId());
+    void deberiaEncontrarPorOrdenId() {
+        Usuario usuario = persistirUsuario(300L);
+        Profesional profesional = persistirProfesional(4L);
+        Reseña reseña = persistirReseña(30L, usuario, profesional, 5, "Experiencia sobresaliente");
 
-        // Then
-        assertTrue(reseña.isPresent());
-        assertEquals(reseña1.getId(), reseña.get().getId());
+        entityManager.clear();
+
+        assertThat(reseñaRepository.findByOrdenId(30L))
+            .isPresent()
+            .get()
+            .extracting(Reseña::getId)
+            .isEqualTo(reseña.getId());
+
+        assertThat(reseñaRepository.existsByOrdenId(30L)).isTrue();
+        assertThat(reseñaRepository.existsByOrdenId(31L)).isFalse();
     }
 
-    @Test
-    @DisplayName("Debería verificar existencia de reseña por orden")
-    void deberiaVerificarExistenciaDeReseñaPorOrden() {
-        // When & Then
-        assertTrue(reseñaRepository.existsByOrdenId(reseña2.getOrdenId()));
-    }
-
-    private Reseña crearReseña(Long ordenId, int rating, Profesional profesional, Usuario usuario) {
+    private Reseña persistirReseña(Long ordenId, Usuario usuario, Profesional profesional, int rating, String comentario) {
         Reseña reseña = new Reseña();
         reseña.setOrdenId(ordenId);
-        reseña.setRating(rating);
-        reseña.setComentario("Comentario detallado sobre el servicio recibido");
-        reseña.setFecha(LocalDateTime.now());
-        reseña.setProfesional(profesional);
         reseña.setUsuario(usuario);
+        reseña.setProfesional(profesional);
+        reseña.setRating(rating);
+        reseña.setComentario(comentario);
+        reseña.setFecha(LocalDateTime.now());
+
+        entityManager.persist(reseña);
+        entityManager.flush();
         return reseña;
     }
 
-    private Profesional crearProfesional(Usuario usuario) {
+    private Profesional persistirProfesional(Long indice) {
+        Usuario usuario = persistirUsuario(indice);
+        Servicio servicio = persistirServicio(indice);
+
         Profesional profesional = new Profesional();
         profesional.setUsuario(usuario);
-        profesional.setNombreCompleto("Profesional Ejemplo");
-        profesional.setTelefono("+54 9 11 5555-2222");
-        profesional.setDescripcion("Servicio integral");
-        profesional.setDisponible(Boolean.TRUE);
-        profesional.setZonaTrabajo("Zona Oeste");
+        profesional.setNombreCompleto("Profesional " + indice);
+        profesional.setTelefono("+541100000" + indice);
+        profesional.setDescripcion("Descripcion profesional " + indice);
+        profesional.setDisponible(true);
+        profesional.setZonaTrabajo("Zona " + indice);
+        profesional.setServicios(new HashSet<>(Collections.singleton(servicio)));
+
+        entityManager.persist(profesional);
+        entityManager.flush();
         return profesional;
     }
 
-    private Usuario crearUsuario(Long id, String username, String dni) {
+    private Usuario persistirUsuario(Long indice) {
         Usuario usuario = new Usuario();
-        usuario.setId(id);
-        usuario.setNombre("Nombre" + id);
-        usuario.setApellido("Apellido" + id);
-        usuario.setDni(dni);
-        usuario.setTelefono("+54 9 11 4444-000" + id);
-        usuario.setCalle("Calle " + id);
-        usuario.setAltura(200 + id.intValue());
-        usuario.setUsername(username);
-        usuario.setPassword("contraseña_segura_para_usuario" + id);
+        usuario.setNombre("Nombre" + indice);
+        usuario.setApellido("Apellido" + indice);
+        usuario.setDni(String.format("%08d", 20000000 + indice));
+        usuario.setTelefono("+54911123" + String.format("%04d", indice));
+        usuario.setCalle("Calle " + indice);
+        usuario.setAltura(100 + indice.intValue());
+        usuario.setUsername("usuario" + indice + "@mail.com");
+        usuario.setPassword("ContrasenaSegura" + indice + "XYZ");
+
+        entityManager.persist(usuario);
+        entityManager.flush();
         return usuario;
+    }
+
+    private Servicio persistirServicio(Long indice) {
+        Servicio servicio = new Servicio();
+        servicio.setNombre("Servicio " + indice);
+        servicio.setPrecioHora(1500.0 + indice);
+
+        entityManager.persist(servicio);
+        entityManager.flush();
+        return servicio;
     }
 }
