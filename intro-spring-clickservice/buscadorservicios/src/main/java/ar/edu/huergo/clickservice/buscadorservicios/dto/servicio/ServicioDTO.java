@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
+ * Subo commit final
  * DTO para transferencia de datos de Servicio
  * Representa los datos que se exponen en la API REST
  */
