@@ -113,7 +113,18 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/solicitudes").hasAnyRole("ADMIN", "CLIENTE")
                 .requestMatchers(HttpMethod.PUT, "/api/solicitudes/**").hasAnyRole("ADMIN", "CLIENTE", "PROFESIONAL")
                 .requestMatchers(HttpMethod.DELETE, "/api/solicitudes/**").hasRole("ADMIN")
+
+
+
+                 //esto es lo de producto. 
+                        .requestMatchers(HttpMethod.POST, "/api/productos/**").hasRole("ADMIN")
+                         .requestMatchers(HttpMethod.PUT, "/api/productos/**").hasRole("ADMIN")
+                          .requestMatchers(HttpMethod.GET, "/api/productos/**").hasRole("ADMIN")
+                           .requestMatchers(HttpMethod.DELETE, "/api/productos/**").hasRole("ADMIN")
+                //hasta aca      
                 
+                
+
                 // Rutas de usuarios - solo ADMIN puede ver todos los usuarios
                 .requestMatchers(HttpMethod.GET, "/api/usuarios").hasRole("ADMIN")
                 
