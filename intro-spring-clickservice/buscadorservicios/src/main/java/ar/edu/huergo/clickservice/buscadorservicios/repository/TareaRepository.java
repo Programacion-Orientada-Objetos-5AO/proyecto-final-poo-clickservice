@@ -12,5 +12,5 @@ import ar.edu.huergo.clickservice.buscadorservicios.entity.Tarea;
 
 @Repository
 public interface TareaRepository extends JpaRepository<Tarea, Long> {
-    List<Tarea> findByTareaContainingIgnoreCase(String Tarea);
+    List<Tarea> findByTituloContainingIgnoreCase(String titulo);
 }
