@@ -51,7 +51,7 @@ public class TareaService {
         return tareaRepository.save(tareaExistente);
     }
    
-    public void eliminarProducto(Long id) throws EntityNotFoundException {
+    public void eliminarTarea(Long id) throws EntityNotFoundException {
          Tarea tarea = obtenerTareaPorId(id);
        tareaRepository.delete(tarea);
     }

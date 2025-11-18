@@ -38,7 +38,7 @@ public class Tarea {
 
     private String creador;
 
-    private boolean completada; 
+    private Boolean completada; 
 
 
 
