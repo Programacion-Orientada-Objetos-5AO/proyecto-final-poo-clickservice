@@ -113,7 +113,17 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/solicitudes").hasAnyRole("ADMIN", "CLIENTE")
                 .requestMatchers(HttpMethod.PUT, "/api/solicitudes/**").hasAnyRole("ADMIN", "CLIENTE", "PROFESIONAL")
                 .requestMatchers(HttpMethod.DELETE, "/api/solicitudes/**").hasRole("ADMIN")
-                
+
+//--------------------------------------------------------------------------------------------------------------------------------------------------
+
+                // Rutas de operaciones calculadora
+                .requestMatchers(HttpMethod.POST, "/api/calculadora/calcular").hasAnyRole("ADMIN", "CLIENTE")
+
+                .requestMatchers(HttpMethod.GET, "/api/calculadora/ultimos").hasRole("ADMIN")
+
+                .requestMatchers(HttpMethod.GET, "/api/calculadora/estadisticas").hasRole("ADMIN")
+//--------------------------------------------------------------------------------------------------------------------------------------------------
+
                 // Rutas de usuarios - solo ADMIN puede ver todos los usuarios
                 .requestMatchers(HttpMethod.GET, "/api/usuarios").hasRole("ADMIN")
                 
